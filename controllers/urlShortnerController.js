@@ -5,7 +5,6 @@ import URL from "../models/url.js";
 export async function urlController(req, res) {
     const { originalURL } = req.body;
 
-    // ✅ Validate URL format
     if (!isURL(originalURL)) {
         return res.status(400).json({ error: "Invalid URL format" });
     }
@@ -13,7 +12,7 @@ export async function urlController(req, res) {
     try {
         const shortURL = shortid.generate();
 
-        // ✅ Save the short URL in the database
+       
         const newURL = new URL({ originalUrl: originalURL, shortUrl: shortURL });
         await newURL.save();
 
