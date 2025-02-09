@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 10px;
+            font-size: 16px;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>URL Shortener</h2>
+
+    
+    <input type="text" id="longUrl" placeholder="Enter URL to shorten">
+    <button onclick="shortenUrl()">Shorten URL</button>
+
+    <div class="result" id="shortenedUrl"></div>
+
+    <hr>
+
+   
+    <input type="text" id="shortUrl" placeholder="Enter Short URL">
+    <button onclick="getUrlInfo()">Get Click Count</button>
+
+    <div class="result" id="urlDetails"></div>
+
+    <script>
+        async function shortenUrl() {
+            const longUrl = document.getElementById("longUrl").value;
+            if (!longUrl) {
+                alert("Please enter a valid URL.");
+                return;
+            }
+
+            try {
+                const response = await fetch("http://localhost:3000/url/shorten", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ originalURL: longUrl })
+                });
+
+                const data = await response.json();
+
+                if (data.shortURL) {
+                    document.getElementById("shortenedUrl").innerHTML = 
+                        `Shortened URL: <a href="http://localhost:3000/url/${data.shortURL}" target="_blank">
+                            http://localhost:3000/url/${data.shortURL}
+                        </a><br><h1>${data.shortURL}</h1>`;
+                } else {
+                    document.getElementById("shortenedUrl").innerHTML = `Error: ${data.error}`;
+                }
+            } catch (error) {
+                document.getElementById("shortenedUrl").innerHTML = `Error: Something went wrong`;
+            }
+        }
+
+        async function getUrlInfo() {
+            const shortUrl = document.getElementById("shortUrl").value;
+            if (!shortUrl) {
+                alert("Please enter a short URL.");
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3000/url/count/${shortUrl}`);
+
+                if (!response.ok) {
+                    document.getElementById("urlDetails").innerHTML = `Error: URL not found`;
+                    return;
+                }
+
+                const data = await response.json();
+
+                document.getElementById("urlDetails").innerHTML = 
+                    `Original URL: <a href="${data.originalUrl}" target="_blank">${data.originalUrl}</a> <br>
+                     Click Count: ${data.clickCount}`;
+            } catch (error) {
+                document.getElementById("urlDetails").innerHTML = `Error: Something went wrong`;
+            }
+        }
+    </script>
+
+</body>
+</html>
